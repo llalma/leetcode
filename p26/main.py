@@ -1,48 +1,39 @@
-# Definition for singly-linked list.
-from typing import Optional
-
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
 class Solution:
-    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        head_node = ListNode(0, head)
+    def removeDuplicates(self, nums: list[int]) -> int:
 
-        prev_node = head_node
-        node = head_node.next
+        if len(nums) == 0:
+            return 0
 
-        while node:
-            if node.next:
-                prev_node.next=node.next
-                node.next = node.next.next
-                prev_node.next.next = node
+        p1, p2 = 0,1
+        len_nums = len(nums)
+        prev_value = nums[0]
+        unique_count = 1
 
-            prev_node = node
-            node = node.next
+        while p1 < len_nums:
 
+            if nums[p1] > prev_value:
+                prev_value = nums[p1]
+                nums[p2] = nums[p1]
+                p2+=1
+                unique_count+=1
 
-        return head_node.next
+            p1+=1
+
+        return unique_count
+
 
 class Test:
     import pytest
 
-    @pytest.mark.parametrize("head, expected",
+    @pytest.mark.parametrize("nums, expected1, expected2,",
                              [
-                                 ([1,2,3,4], [2,1,4,3]),
-                                 ([], []),
-                                 ([1], [1]),
+                                 # ([1,1,2], 2, [1,2]),
+                                 ([0,0,1,1,1,2,2,3,3,4], 5, [0,1,2,3,4]),
                              ])
-    def test(self, head, expected):
-        # Create each of the linked lists
-        prev = None
-        for n in head[::-1]:
-            prev = ListNode(n, prev)
+    def test(self, nums, expected1, expected2):
 
-        res = Solution().swapPairs(prev)
+        res1, res2 = Solution().removeDuplicates(nums)
 
-        i = 0
-        while res:
-            assert res.val == expected[i]
-            res = res.next
-            i+=1
+        assert res1==expected1
+        for i in range(expected1):
+            assert res2[i] == expected2[i]
