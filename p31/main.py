@@ -1,55 +1,65 @@
-def _solve(i, s, words_count, word_len, s_len, substring_len):
-
-    sub_string_count = 0
-
-    while i < s_len:
-
-        # get the current words
-        word = s[i:i+word_len]
-        if word in words_count and words_count[word] > 0:
-            words_count[word] -= 1
-
-            sub_string_count += word_len
-            if sub_string_count == substring_len:
-                return True
-
-            i += word_len
-
-        # Word is not in so exit
-        else:
-            return False
-
+def reverse(arr):
+    bPoint, n = -1, len(arr)
+    for i in range(n - 2, -1, -1):
+        if arr[i] >= arr[i + 1]: continue  # Skip the non-increasing sequence
+        bPoint = i  # Got our breakpoint
+        for j in range(n - 1, i, -1):  # again traverse from end
+            if arr[j] > arr[bPoint]:  # Search an element greater the element present at the breakPoint.
+                arr[j], arr[bPoint] = arr[bPoint], arr[j]  # Swap it
+                break  # We just need to swap once
+        break  # Break this loop too
+    arr[bPoint + 1:] = reversed(arr[bPoint + 1:])
 
 class Solution:
-    def findSubstring(self, s: str, words: list[str]) -> list[int]:
+    def nextPermutation(self, nums: list[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        Find next largets number
+        """
 
-        output = []
-        word_len = len(words[0])
-        s_len = len(s)
-        substring_len = word_len*len(words)
+        if len(nums) < 2:
+            return 0
 
-        # words count
-        words_count = {}
-        for word in words:
-            if word in words_count:
-                words_count[word] += 1
-            else:
-                words_count[word] = 1
+        # Find first non increasing digit from right
+        i = len(nums)-2
+        while nums[i+1] <= nums[i] and i >= 0:
+            i-=1
 
-        # Loop over each starting index
-        for i in range(len(s) - (len(words)*word_len-1)):
-            if _solve(i, s, words_count.copy(), word_len, s_len, substring_len):
-                output.append(i)
+        # Only flip a digit in the middle of the nums array if, the array is non-increasing
+        breakpoint_index = i
+        breakpoint_val = nums[i]
+        if breakpoint_index>=0:
+            # Iterate from RHS in section right of breakpoint, Find the first instance of number bigger than breakpoint
+            i = len(nums)-1
+            while i > breakpoint_index:
+                if nums[i] > breakpoint_val:
+                      break
+                i-=1
+            nums[i], nums[breakpoint_index] = nums[breakpoint_index], nums[i]
 
-        return list(set(output))
+        # Reverse the part right of breakpoint_index
+        left = breakpoint_index + 1
+        right = len(nums)-1
+        while left < right:
+            nums[left], nums[right] = nums[right], nums[left]
+            left+=1
+            right-=1
+
+        return nums
+
 class Test:
     import pytest
 
-    @pytest.mark.parametrize("s, words, expected",
+    @pytest.mark.parametrize("nums, expected",
                              [
-                                 ('abarfoothefoobarman', ["foo","bar"], [1,10]),
-                                 ('wordgoodgoodgoodbestword', ["word","good","best","word"], []),
-                                 ('barfoofoobarthefoobarman', ["bar","foo","the"], [6, 9, 12]),
+                                 ([1,1], [1,1]),
+                                 ([5,1,1], [1,1,5]),
+                                 ([1,2], [2,1]),
+                                 ([1,2,4,3], [1,3,2,4]),
+                                 ([1,2,3], [1,3,2]),
+                                 ([3,2,1], [1,2,3]),
+                                 ([1,1,5], [1,5,1]),
+                                 ([1,3,2], [2,1,3]),
                              ])
-    def test(self, s, words, expected):
-        assert sorted(Solution().findSubstring(s, words)) == sorted(expected)
+    def test(self, nums, expected):
+        assert Solution().nextPermutation(nums) == expected
